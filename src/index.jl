@@ -1,28 +1,8 @@
-function FMIndex(seq, σ=256, r=32)
-    @assert 1 ≤ σ ≤ typemax(UInt8)
-    n = length(seq)
-    # BWT
-    T = n ≤ typemax(UInt16) ? UInt16 :
-        n ≤ typemax(UInt32) ? UInt32 : UInt64
-    sa = make_sa(seq, σ, T)
-    nbits = ceil(Int, log2(σ))
-    wm = WaveletMatrix(bwt(seq, sa), nbits)
-    # sample suffix array
-    samples, sampled = sample_sa(sa, r)
-    sentinel = findfirst(sa, 0) + 1
-    # count characters
-    count = count_bytes(seq, σ)
-    count[1] = 1  # sentinel '$' is smaller than any character
-    cumsum!(count, count)
-    return FMIndex(wm, sentinel, samples, CompactBitVector(sampled), count)
-end
-
 Base.length(index::FMIndex) = length(index.bwt)
 
 function count_bytes(seq, σ)
     count = zeros(Int, σ + 1)
-    n = length(seq)
-    for i in 1:n
+    for i in 1:length(seq)
         count[seq[i]+2] += 1
     end
     resize!(count, σ)
