@@ -11,7 +11,7 @@ using IndexableBitVectors
 # n: number of bits required to encode the alphabet
 # T: type to represent the position
 immutable FMIndex{n,T}
-    bwt::WaveletMatrix{n,CompactBitVector}
+    bwt::WaveletMatrix{n,UInt8,SucVector}
     sentinel::Int
     samples::Vector{T}
     sampled::CompactBitVector
