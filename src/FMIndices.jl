@@ -10,14 +10,25 @@ using IndexableBitVectors
 
 # n: number of bits required to encode the alphabet
 # T: type to represent the position
+"""
+FM-Index for full-text search.
+"""
 immutable FMIndex{n,T}
     bwt::WaveletMatrix{n,UInt8,SucVector}
     sentinel::Int
     samples::Vector{T}
-    sampled::CompactBitVector
+    sampled::SucVector
     count::Vector{Int}
 end
 
+"""
+Build an FM-Index from a sequence `seq`.
+The sequence must support `convert(UInt8, seq[i])` for each character and the
+alphabet size should be less than or equal to 256. The second parameter, `σ`, is
+the alphabet size. The third parameter, `r`, is the interval of sampling values
+from a suffix array. If you set it large, you can save the memory footprint but
+it requires more time to locate the position.
+"""
 function FMIndex(seq, σ=256, r=32)
     @assert 1 ≤ σ ≤ typemax(UInt8)
     n = length(seq)
@@ -25,8 +36,7 @@ function FMIndex(seq, σ=256, r=32)
     T = n ≤ typemax(UInt16) ? UInt16 :
         n ≤ typemax(UInt32) ? UInt32 : UInt64
     sa = make_sa(seq, σ, T)
-    nbits = ceil(Int, log2(σ))
-    wm = WaveletMatrix(bwt(seq, sa), nbits)
+    wm = WaveletMatrix(make_bwt(seq, sa), ceil(Int, log2(σ)))
     # sample suffix array
     samples, sampled = sample_sa(sa, r)
     sentinel = findfirst(sa, 0) + 1
@@ -34,9 +44,12 @@ function FMIndex(seq, σ=256, r=32)
     count = count_bytes(seq, σ)
     count[1] = 1  # sentinel '$' is smaller than any character
     cumsum!(count, count)
-    return FMIndex(wm, sentinel, samples, CompactBitVector(sampled), count)
+    return FMIndex(wm, sentinel, samples, SucVector(sampled), count)
 end
 
+"""
+Restore the original text from the index.
+"""
 function restore(index::FMIndex)
     n = length(index)
     text = Vector{UInt8}(n)
@@ -49,14 +62,28 @@ function restore(index::FMIndex)
     return text
 end
 
+"""
+Count the number of occurrences of the given query.
+"""
 function count(query, index::FMIndex)
     return length(sa_range(query, index))
 end
 
+"""
+Locate the positions of occurrences of the given query.
+This method returns an iterator of positions:
+
+    for pos in locate(query, index)
+        # ...
+    end
+"""
 function locate(query, index::FMIndex)
     return LocationIterator(sa_range(query, index), index)
 end
 
+"""
+Locate the positions of all occurrences of the given query.
+"""
 function locateall(query, index::FMIndex)
     iter = locate(query, index)
     locs = Vector{Int}(length(iter))

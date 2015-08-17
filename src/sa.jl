@@ -32,7 +32,7 @@ function sample_sa{T}(sa::Vector{T}, r)
     return samples, sampled
 end
 
-function bwt(seq, sa)
+function make_bwt(seq, sa)
     n = length(seq)
     @assert length(sa) == n
     ret = Vector{UInt8}(n)
