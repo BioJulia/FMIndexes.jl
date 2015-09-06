@@ -1,6 +1,6 @@
-immutable LocationIterator{n,T}
+immutable LocationIterator{w,T}
     range::UnitRange{Int}
-    index::FMIndex{n,T}
+    index::FMIndex{w,T}
 end
 
 Base.length(iter::LocationIterator) = length(iter.range)

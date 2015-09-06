@@ -10,13 +10,13 @@ using SuffixArrays
 using WaveletMatrices
 using IndexableBitVectors
 
-# n: number of bits required to encode the alphabet
+# w: number of bits required to encode the alphabet
 # T: type to represent the position
 """
 FM-Index for full-text search.
 """
-immutable FMIndex{n,T}
-    bwt::WaveletMatrix{n,UInt8,SucVector}
+immutable FMIndex{w,T}
+    bwt::WaveletMatrix{w,UInt8,SucVector}
     sentinel::Int
     samples::Vector{T}
     sampled::SucVector
