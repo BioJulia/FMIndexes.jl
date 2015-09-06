@@ -35,7 +35,8 @@ function FMIndex(seq, σ=256, r=32)
     @assert 1 ≤ σ ≤ typemax(UInt8) + 1
     n = length(seq)
     # BWT
-    T = n ≤ typemax(UInt16) ? UInt16 :
+    T = n ≤ typemax(UInt8)  ? UInt8  :
+        n ≤ typemax(UInt16) ? UInt16 :
         n ≤ typemax(UInt32) ? UInt32 : UInt64
     sa = make_sa(seq, σ, T)
     wm = WaveletMatrix(make_bwt(seq, sa), ceil(Int, log2(σ)))

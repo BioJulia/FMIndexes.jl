@@ -1,6 +1,20 @@
 using FMIndices
 using FactCheck
 
+facts("construct") do
+    context("short") do
+        seq = [0x00, 0x01, 0x02, 0x03]
+        index = FMIndex(seq, 4)
+        @fact typeof(index) --> FMIndex{2,UInt8}
+    end
+
+    context("long") do
+        seq = rand(0x00:0x01, 2^27 + 1)
+        index = FMIndex(seq, 2)
+        @fact typeof(index) --> FMIndex{1,UInt32}
+    end
+end
+
 facts("restore") do
     context("examples") do
         σ = 2
