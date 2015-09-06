@@ -1,6 +1,5 @@
 using FMIndices
 using FactCheck
-#using Base.Test
 
 facts("restore") do
     context("examples") do

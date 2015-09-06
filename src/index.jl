@@ -21,7 +21,11 @@ function lfmap(index::FMIndex, i)
 end
 
 function sa_range(query, index::FMIndex)
-    sp, ep = 1, length(index) + 1
+    sa_range(query, index::FMIndex, 1:(length(index)+1))
+end
+
+function sa_range(query, index::FMIndex, r::UnitRange{Int})
+    sp, ep = r.start, r.stop
     i = length(query)
     while sp ≤ ep && i ≥ 1
         char = convert(UInt8, query[i])
