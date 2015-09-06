@@ -32,7 +32,7 @@ from a suffix array. If you set it large, you can save the memory footprint but
 it requires more time to locate the position.
 """
 function FMIndex(seq, σ=256, r=32)
-    @assert 1 ≤ σ ≤ typemax(UInt8)
+    @assert 1 ≤ σ ≤ typemax(UInt8) + 1
     n = length(seq)
     # BWT
     T = n ≤ typemax(UInt16) ? UInt16 :
@@ -47,6 +47,10 @@ function FMIndex(seq, σ=256, r=32)
     count[1] = 1  # sentinel '$' is smaller than any character
     cumsum!(count, count)
     return FMIndex(wm, sentinel, samples, SucVector(sampled), count)
+end
+
+function FMIndex(text::ASCIIString, r=32)
+    return FMIndex(convert(Vector{UInt8}, text), 256, r)
 end
 
 """

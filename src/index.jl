@@ -24,8 +24,9 @@ function sa_range(query, index::FMIndex)
     sa_range(query, index::FMIndex, 1:(length(index)+1))
 end
 
-function sa_range(query, index::FMIndex, r::UnitRange{Int})
-    sp, ep = r.start, r.stop
+function sa_range(query, index::FMIndex, init_range::UnitRange{Int})
+    sp, ep = init_range.start, init_range.stop
+    # backward search
     i = length(query)
     while sp ≤ ep && i ≥ 1
         char = convert(UInt8, query[i])

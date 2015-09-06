@@ -105,3 +105,27 @@ facts("locate/locateall") do
         @fact locateall("braa", index) --> isempty
     end
 end
+
+facts("full-text search") do
+    function linear_search(query)
+        locs = Int[]
+        loc = 0
+        while (loc = searchindex(text, query, loc + 1)) > 0
+            push!(locs, loc)
+        end
+        return locs
+    end
+
+    text = open(readall, Pkg.dir("FMIndices", "test", "lorem_ipsum.txt"))
+    index = FMIndex(text)
+
+    @fact count("Lorem", index) --> 1
+    @fact locateall("Lorem", index) --> [1]
+    @fact count("hoge", index) --> 0
+    @fact locateall("hoge", index) --> isempty
+    for query in ["a", "ex", "non", "Cras", "sollicitudin"]
+        locs = linear_search(query)
+        @fact count(query, index) --> length(locs)
+        @fact locateall(query, index) |> sort --> locs
+    end
+end
