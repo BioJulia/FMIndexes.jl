@@ -1,3 +1,5 @@
+isdefined(Base, :__precompile__) && __precompile__()
+
 module FMIndices
 
 export FMIndex, restore, count, locate, locateall
