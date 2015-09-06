@@ -8,9 +8,7 @@ function make_sa(seq, σ, T)
         SuffixArrays.sais(seq, sa′, 0, n, nextpow2(σ), false)
         sa = convert(Vector{T}, sa′)
     else
-        path, io = mktemp()
-        finalizer(io, io -> begin close(io); rm(path) end)
-        sa = Mmap.mmap(io, Vector{T}, (n,))
+        sa = Mmap.mmap(Vector{T}, n)
         SuffixArrays.sais_se(seq, sa, σ)
     end
     return sa
