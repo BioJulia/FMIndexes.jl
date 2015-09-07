@@ -6,17 +6,12 @@ function index_type(n)
     n ≤ typemax(UInt32) ? UInt32 : UInt64
 end
 
-function make_sa(seq, σ, T)
+function make_sa(T, seq, σ, mmap)
     n = length(seq)
-    MiB = 1024^2
-    if n * sizeof(T) ≤ 512MiB
-        sa′ = Vector{Int}(n)
-        SuffixArrays.sais(seq, sa′, 0, n, nextpow2(σ), false)
-        sa = convert(Vector{T}, sa′)
-    else
-        sa = Mmap.mmap(Vector{T}, n)
-        SuffixArrays.sais_se(seq, sa, σ)
-    end
+    tmp_sa = mmap ? Mmap.mmap(Vector{Int}, n) : Vector{Int}(n)
+    SuffixArrays.sais(seq, tmp_sa, 0, n, nextpow2(σ), false)
+    sa = mmap ? Mmap.mmap(Vector{T}, n) : Vector{T}(n)
+    copy!(sa, tmp_sa)
     return sa
 end
 
@@ -55,12 +50,13 @@ end
 
 # psascan
 
-function load_sa(file, T)
+function load_sa(T, file, mmap)
     # load a 40-bit suffix array generated from psascan
     # https://www.cs.helsinki.fi/group/pads/pSAscan.html
     size = filesize(file)
     @assert size % 5 == 0 "file $file is not 40-bit integers"
-    sa = Vector{T}(div(size, 5))
+    n = div(size, 5)
+    sa = mmap ? Mmap.mmap(Vector{T}, n) : Vector{T}(n)
     open(file) do input
         load_sa!(input, sa)
     end

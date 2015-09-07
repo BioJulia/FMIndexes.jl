@@ -3,15 +3,24 @@ using FactCheck
 
 facts("construct") do
     context("short") do
+        σ = 4
         seq = [0x00, 0x01, 0x02, 0x03]
-        index = FMIndex(seq, 4)
+        index = FMIndex(seq, σ)
         @fact typeof(index) --> FMIndex{2,UInt8}
     end
 
     context("long") do
-        seq = rand(0x00:0x01, 2^27 + 1)
-        index = FMIndex(seq, 2)
+        σ = 2
+        seq = rand(0x00:0x01, 2^24)
+        index = FMIndex(seq, σ)
         @fact typeof(index) --> FMIndex{1,UInt32}
+    end
+
+    context("mmap") do
+        σ = 4
+        seq = rand(0x00:0x03, 2^10)
+        index = FMIndex(seq, σ, mmap=true)
+        @fact typeof(index) --> FMIndex{2,UInt16}
     end
 end
 
@@ -142,4 +151,6 @@ facts("full-text search") do
         @fact count(query, index) --> length(locs)
         @fact locateall(query, index) |> sort --> locs
     end
+
+    @fact bytestring(restore(index)) --> text
 end

@@ -43,22 +43,22 @@ the alphabet size. The third parameter, `r`, is the interval of sampling values
 from a suffix array. If you set it large, you can save the memory footprint but
 it requires more time to locate the position.
 """
-function FMIndex(seq, σ=256; r=32, program=:SuffixArrays, opts...)
+function FMIndex(seq, σ=256; r=32, program=:SuffixArrays, mmap::Bool=false, opts...)
     T = index_type(length(seq))
+    opts = Dict(opts)
     local sa
     if program === :SuffixArrays
         @assert 1 ≤ σ ≤ typemax(UInt8) + 1
-        sa = make_sa(seq, σ, T)
+        sa = make_sa(T, seq, σ, mmap)
     elseif program === :psascan
         @assert 1 ≤ σ ≤ typemax(UInt8)
-        opts = Dict(opts)
         psascan = get(opts, :psascan, "psascan")
         parentdir = get(opts, :parent, pwd())
         seqpath = serialize_seq(seq, parentdir)
         sapath = string(seqpath, ".sa5")
         try
             run(`$psascan -o $sapath $seqpath`)
-            sa = load_sa(sapath, T)
+            sa = load_sa(T, sapath, mmap)
         finally
             rm(seqpath)
             if isfile(sapath)
