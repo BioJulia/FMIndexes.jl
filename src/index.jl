@@ -1,9 +1,13 @@
 Base.length(index::FMIndex) = length(index.bwt)
 
+function log2(::Type{Int}, x::Integer)
+    return 64 - leading_zeros(convert(UInt64, x-1))
+end
+
 function count_bytes(seq, σ)
     count = zeros(Int, σ + 1)
     for i in 1:length(seq)
-        count[seq[i]+2] += 1
+        count[convert(UInt8,seq[i])+2] += 1
     end
     resize!(count, σ)
     return count

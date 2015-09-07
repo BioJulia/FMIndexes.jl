@@ -1,5 +1,11 @@
 # utils about suffix arrays and BWT
 
+function index_type(n)
+    n ≤ typemax(UInt8)  ? UInt8  :
+    n ≤ typemax(UInt16) ? UInt16 :
+    n ≤ typemax(UInt32) ? UInt32 : UInt64
+end
+
 function make_sa(seq, σ, T)
     n = length(seq)
     MiB = 1024^2
@@ -45,4 +51,48 @@ function make_bwt(seq, sa)
         end
     end
     return ret
+end
+
+# psascan
+
+function load_sa(file, T)
+    # load a 40-bit suffix array generated from psascan
+    # https://www.cs.helsinki.fi/group/pads/pSAscan.html
+    size = filesize(file)
+    @assert size % 5 == 0 "file $file is not 40-bit integers"
+    sa = Vector{T}(div(size, 5))
+    open(file) do input
+        load_sa!(input, sa)
+    end
+    return sa
+end
+
+function load_sa!{T}(input::IO, sa::Vector{T})
+    buf = Vector{UInt8}(5)
+    i = 0
+    while !eof(input)
+        read!(input, buf)
+        value = T(0)
+        @inbounds for j in 1:5
+            value |= convert(T, buf[j]) << 8 * (j - 1)
+        end
+        sa[i+=1] = value
+    end
+    @assert i == length(sa)
+    return sa
+end
+
+function serialize_seq(seq, dir)
+    n = length(seq)
+    path, io = mktemp(dir)
+    try
+        @inbounds for i in 1:n
+            write(io, convert(UInt8, seq[i]))
+        end
+        close(io)
+    catch
+        rm(path)
+        rethrow()
+    end
+    return path
 end

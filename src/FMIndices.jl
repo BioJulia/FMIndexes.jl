@@ -23,23 +23,8 @@ immutable FMIndex{w,T}
     count::Vector{Int}
 end
 
-"""
-Build an FM-Index from a sequence `seq`.
-The sequence must support `convert(UInt8, seq[i])` for each character and the
-alphabet size should be less than or equal to 256. The second parameter, `σ`, is
-the alphabet size. The third parameter, `r`, is the interval of sampling values
-from a suffix array. If you set it large, you can save the memory footprint but
-it requires more time to locate the position.
-"""
-function FMIndex(seq, σ=256, r=32)
-    @assert 1 ≤ σ ≤ typemax(UInt8) + 1
-    n = length(seq)
-    # BWT
-    T = n ≤ typemax(UInt8)  ? UInt8  :
-        n ≤ typemax(UInt16) ? UInt16 :
-        n ≤ typemax(UInt32) ? UInt32 : UInt64
-    sa = make_sa(seq, σ, T)
-    wm = WaveletMatrix(make_bwt(seq, sa), ceil(Int, log2(σ)))
+function FMIndex(seq, sa, σ, r)
+    wm = WaveletMatrix(make_bwt(seq, sa), log2(Int, σ))
     # sample suffix array
     samples, sampled = sample_sa(sa, r)
     sentinel = findfirst(sa, 0) + 1
@@ -50,8 +35,44 @@ function FMIndex(seq, σ=256, r=32)
     return FMIndex(wm, sentinel, samples, SucVector(sampled), count)
 end
 
-function FMIndex(text::ASCIIString, r=32)
-    return FMIndex(convert(Vector{UInt8}, text), 256, r)
+"""
+Build an FM-Index from a sequence `seq`.
+The sequence must support `convert(UInt8, seq[i])` for each character and the
+alphabet size should be less than or equal to 256. The second parameter, `σ`, is
+the alphabet size. The third parameter, `r`, is the interval of sampling values
+from a suffix array. If you set it large, you can save the memory footprint but
+it requires more time to locate the position.
+"""
+function FMIndex(seq, σ=256; r=32, program=:SuffixArrays, opts...)
+    T = index_type(length(seq))
+    local sa
+    if program === :SuffixArrays
+        @assert 1 ≤ σ ≤ typemax(UInt8) + 1
+        sa = make_sa(seq, σ, T)
+    elseif program === :psascan
+        @assert 1 ≤ σ ≤ typemax(UInt8)
+        opts = Dict(opts)
+        psascan = get(opts, :psascan, "psascan")
+        parentdir = get(opts, :parent, pwd())
+        seqpath = serialize_seq(seq, parentdir)
+        sapath = string(seqpath, ".sa5")
+        try
+            run(`$psascan -o $sapath $seqpath`)
+            sa = load_sa(sapath, T)
+        finally
+            rm(seqpath)
+            if isfile(sapath)
+                rm(sapath)
+            end
+        end
+    else
+        error("unknown program name: $program")
+    end
+    return FMIndex(seq, sa, σ, r)
+end
+
+function FMIndex(text::ASCIIString; opts...)
+    return FMIndex(convert(Vector{UInt8}, text), 128; opts...)
 end
 
 """

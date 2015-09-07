@@ -131,7 +131,7 @@ facts("full-text search") do
     end
 
     text = open(readall, Pkg.dir("FMIndices", "test", "lorem_ipsum.txt"))
-    index = FMIndex(text)
+    index = FMIndex(text, r=2)
 
     @fact count("Lorem", index) --> 1
     @fact locateall("Lorem", index) --> [1]
