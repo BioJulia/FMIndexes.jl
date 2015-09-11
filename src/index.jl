@@ -1,4 +1,4 @@
-Base.length(index::FMIndex) = length(index.bwt)
+length(index::FMIndex) = length(index.bwt)
 
 function log2(::Type{Int}, x::Integer)
     return 64 - leading_zeros(convert(UInt64, x-1))
@@ -35,8 +35,8 @@ function sa_range(query, index::FMIndex, init_range::UnitRange{Int})
     while sp ≤ ep && i ≥ 1
         char = convert(UInt8, query[i])
         c = index.count[char+1]
-        sp = c + rank(char, index.bwt, (sp ≥ index.sentinel ? sp - 1 : sp) - 1) + 1
-        ep = c + rank(char, index.bwt, (ep ≥ index.sentinel ? ep - 1 : ep))
+        sp = c + rank(char, index.bwt, (sp > index.sentinel ? sp - 1 : sp) - 1) + 1
+        ep = c + rank(char, index.bwt, (ep > index.sentinel ? ep - 1 : ep))
         i -= 1
     end
     return sp:ep

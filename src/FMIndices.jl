@@ -4,7 +4,9 @@ module FMIndices
 
 export FMIndex, restore, count, locate, locateall
 
-import Base: count
+import Base:
+    count,
+    length
 
 using SuffixArrays
 using WaveletMatrices

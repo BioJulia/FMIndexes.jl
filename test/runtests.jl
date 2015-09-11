@@ -93,7 +93,10 @@ facts("count") do
         @fact count([0x01], index) --> 2
         @fact count([0x01, 0x01], index) --> 1
 
-        @pending count([0x01, 0x00], index) --> 0
+        @fact count([0x01, 0x00], index) --> 0
+        @fact count([0x01, 0x01, 0x00], index) --> 0
+        @fact count([0x00, 0x01, 0x01, 0x00], index) --> 0
+        @fact count([0x01, 0x01, 0x00, 0x00], index) --> 0
     end
 end
 
