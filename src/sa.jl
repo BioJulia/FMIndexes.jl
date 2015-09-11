@@ -20,7 +20,6 @@ function sample_sa{T}(sa::Vector{T}, r)
     samples = Vector{T}(cld(n, r))
     sampled = falses(n)
     i′ = 0
-    @assert n ≥ 2
     for i in 1:n
         @assert 0 ≤ sa[i] ≤ n - 1
         if sa[i] % r == 0

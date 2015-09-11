@@ -2,6 +2,13 @@ using FMIndices
 using FactCheck
 
 facts("construct") do
+    context("one") do
+        σ = 2
+        seq = [0x00]
+        index = FMIndex(seq, σ)
+        @fact typeof(index) --> FMIndex{1,UInt8}
+    end
+
     context("short") do
         σ = 4
         seq = [0x00, 0x01, 0x02, 0x03]
@@ -26,6 +33,11 @@ end
 
 facts("restore") do
     context("examples") do
+        σ = 2
+        seq = [0x01]
+        index = FMIndex(seq, σ)
+        @fact restore(index) --> seq
+
         σ = 2
         seq = [0x00, 0x00, 0x01, 0x01]
         index = FMIndex(seq, σ)
@@ -52,6 +64,13 @@ facts("restore") do
 end
 
 facts("count") do
+    context("[0x00]") do
+        σ = 2
+        index = FMIndex([0x00], σ)
+        @fact count([0x00], index) --> 1
+        @fact count([0x01], index) --> 0
+    end
+
     context("\"abracadabra\"") do
         σ = 128
         seq = "abracadabra".data
@@ -101,6 +120,13 @@ facts("count") do
 end
 
 facts("locate/locateall") do
+    context("[0x00]") do
+        σ = 2
+        index = FMIndex([0x00], σ)
+        @fact locateall([0x00], index) --> [1]
+        @fact locateall([0x01], index) --> isempty
+    end
+
     context("\"abracadabra\"") do
         σ = 128
         seq = "abracadabra".data
