@@ -47,11 +47,36 @@ function make_bwt(seq, sa)
     return ret
 end
 
-# psascan
+
+# pSAscan
+# -------
+#
+# https://www.cs.helsinki.fi/group/pads/pSAscan.html
+
+function make_sa_pscan(T, seq, psascan, workdir, mmap)
+    seqpath, io = mktemp(workdir)
+    sapath = string(seqpath, ".sa5")
+    try
+        dump_seq(io, seq)
+        run(`$psascan -o $sapath $seqpath`)
+        return load_sa(T, sapath, mmap)
+    catch
+        rethrow()
+    finally
+        rm(seqpath)
+        isfile(sapath) && rm(sapath)
+    end
+end
+
+function dump_seq(io, seq)
+    @inbounds for i in 1:length(seq)
+        write(io, convert(UInt8, seq[i]))
+    end
+    close(io)
+end
 
 function load_sa(T, file, mmap)
     # load a 40-bit suffix array generated from psascan
-    # https://www.cs.helsinki.fi/group/pads/pSAscan.html
     size = filesize(file)
     @assert size % 5 == 0 "file $file is not 40-bit integers"
     n = div(size, 5)
@@ -63,6 +88,7 @@ function load_sa(T, file, mmap)
 end
 
 function load_sa!{T}(input::IO, sa::Vector{T})
+    # load a suffix array from the `input` into `sa`
     buf = Vector{UInt8}(5)
     i = 0
     while !eof(input)
@@ -75,19 +101,4 @@ function load_sa!{T}(input::IO, sa::Vector{T})
     end
     @assert i == length(sa)
     return sa
-end
-
-function serialize_seq(seq, dir)
-    n = length(seq)
-    path, io = mktemp(dir)
-    try
-        @inbounds for i in 1:n
-            write(io, convert(UInt8, seq[i]))
-        end
-        close(io)
-    catch
-        rm(path)
-        rethrow()
-    end
-    return path
 end

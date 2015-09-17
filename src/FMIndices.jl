@@ -48,25 +48,14 @@ it requires more time to locate the position.
 function FMIndex(seq, σ=256; r=32, program=:SuffixArrays, mmap::Bool=false, opts...)
     T = index_type(length(seq))
     opts = Dict(opts)
-    local sa
     if program === :SuffixArrays
         @assert 1 ≤ σ ≤ typemax(UInt8) + 1
         sa = make_sa(T, seq, σ, mmap)
-    elseif program === :psascan
+    elseif program === :psascan || program === :pSAscan
         @assert 1 ≤ σ ≤ typemax(UInt8)
         psascan = get(opts, :psascan, "psascan")
-        parentdir = get(opts, :parent, pwd())
-        seqpath = serialize_seq(seq, parentdir)
-        sapath = string(seqpath, ".sa5")
-        try
-            run(`$psascan -o $sapath $seqpath`)
-            sa = load_sa(T, sapath, mmap)
-        finally
-            rm(seqpath)
-            if isfile(sapath)
-                rm(sapath)
-            end
-        end
+        workdir = get(opts, :workdir, pwd())
+        sa = make_sa_pscan(T, seq, psascan, workdir, mmap)
     else
         error("unknown program name: $program")
     end

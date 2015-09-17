@@ -29,6 +29,17 @@ facts("construct") do
         index = FMIndex(seq, σ, mmap=true)
         @fact typeof(index) --> FMIndex{2,UInt16}
     end
+
+    context("use pSAscan") do
+        σ = 4
+        seq = rand(0x00:0x03, 2^24)
+        if haskey(ENV, "PSASCAN")
+            index = FMIndex(seq, σ, program=:psascan, psascan=ENV["PSASCAN"], mmap=true)
+            @fact typeof(index) --> FMIndex{2,UInt32}
+        else
+            @pending typeof(index) --> FMIndex{2,UInt32}
+        end
+    end
 end
 
 facts("restore") do
