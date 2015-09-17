@@ -12,10 +12,13 @@ using SuffixArrays
 using WaveletMatrices
 using IndexableBitVectors
 
-# w: number of bits required to encode the alphabet
-# T: type to represent the position
 """
-FM-Index for full-text search.
+Index for full-text search.
+
+Type parameters:
+
+* `w`: the number of bits required to encode the alphabet
+* `T`: the type to represent positions of a sequence
 """
 immutable FMIndex{w,T}
     bwt::WaveletMatrix{w,UInt8,SucVector}
@@ -38,6 +41,8 @@ function FMIndex(seq, sa, σ, r)
 end
 
 """
+    FMIndex(seq, σ=256; r=32, program=:SuffixArrays, mmap::Bool=false, opts...)
+
 Build an FM-Index from a sequence `seq`.
 The sequence must support `convert(UInt8, seq[i])` for each character and the
 alphabet size should be less than or equal to 256. The second parameter, `σ`, is
