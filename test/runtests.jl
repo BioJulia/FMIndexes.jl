@@ -1,6 +1,8 @@
 using FMIndices
 using FactCheck
 
+srand(12345)
+
 facts("construct") do
     context("one") do
         σ = 2
@@ -21,6 +23,22 @@ facts("construct") do
         seq = rand(0x00:0x01, 2^24)
         index = FMIndex(seq, σ)
         @fact typeof(index) --> FMIndex{1,UInt32}
+    end
+
+    context("boundaries") do
+        σ = 4
+        # 8 bits
+        n = 2^8
+        seq = rand(0x00:0x03, n)
+        index = FMIndex(seq, σ)
+        @fact typeof(index) --> FMIndex{2,UInt8}
+        # 16 bits
+        n = 2^16
+        seq = rand(0x00:0x03, n)
+        index = FMIndex(seq, σ)
+        @fact typeof(index) --> FMIndex{2,UInt16}
+        # 32 bits
+        # too long to test!
     end
 
     context("mmap") do
@@ -130,6 +148,20 @@ facts("count") do
     end
 end
 
+function linear_search(query, seq)
+    locs = Int[]
+    for i in 1:endof(seq)-length(query)+1
+        j = 1
+        while j ≤ length(query) && query[j] == seq[i+j-1]
+            j += 1
+        end
+        if j > length(query)
+            push!(locs, i)
+        end
+    end
+    return locs
+end
+
 facts("locate/locateall") do
     context("[0x00]") do
         σ = 2
@@ -167,6 +199,36 @@ facts("locate/locateall") do
         @fact locateall("aaa", index) --> isempty
         @fact locateall("braa", index) --> isempty
     end
+
+    context("random") do
+        σ = 4
+        seq = rand(0x00:0x03, 10_000)
+        index = FMIndex(seq, σ)
+        for m in [1, 2, 3, 5, 10]
+            query = rand(0x00:0x03, m)
+            @fact locateall(query, index) |> sort --> linear_search(query, seq)
+        end
+    end
+
+    context("boundaries") do
+        σ = 4
+        for n in [2^8, 2^16]
+            seq = rand(0x00:0x03, n)
+            index = FMIndex(seq, σ)
+            for set in ([0x00],
+                        [0x03],
+                        [0x00, 0x00],
+                        [0x00, 0x01],
+                        [0x02, 0x03],
+                        [0x00, 0x01, 0x02],
+                        [0x01, 0x02, 0x03],
+                        [0x00, 0x01, 0x02, 0x03])
+                for query in permutations(set)
+                    @fact locateall(query, index) |> sort --> linear_search(query, seq)
+                end
+            end
+        end
+    end
 end
 
 facts("full-text search") do
@@ -186,7 +248,11 @@ facts("full-text search") do
     @fact locateall("Lorem", index) --> [1]
     @fact count("hoge", index) --> 0
     @fact locateall("hoge", index) --> isempty
-    for query in ["a", "ex", "non", "Cras", "sollicitudin"]
+    for query in ["a", ".",
+                  "ex", "In",
+                  "non", "Sed",
+                  "odio", "Cras",
+                  "sollicitudin"]
         locs = linear_search(query)
         @fact count(query, index) --> length(locs)
         @fact locateall(query, index) |> sort --> locs

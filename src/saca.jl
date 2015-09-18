@@ -1,11 +1,6 @@
-# utils about suffix arrays and BWT
+# Suffix Array Construction Algorithms
 
-function index_type(n)
-    n ≤ typemax(UInt8)  ? UInt8  :
-    n ≤ typemax(UInt16) ? UInt16 :
-    n ≤ typemax(UInt32) ? UInt32 : UInt64
-end
-
+# SuffixArrays.jl: https://github.com/quinnj/SuffixArrays.jl
 function make_sa(T, seq, σ, mmap)
     n = length(seq)
     tmp_sa = mmap ? Mmap.mmap(Vector{Int}, n) : Vector{Int}(n)
@@ -15,44 +10,7 @@ function make_sa(T, seq, σ, mmap)
     return sa
 end
 
-function sample_sa{T}(sa::Vector{T}, r)
-    n = length(sa)
-    samples = Vector{T}(cld(n, r))
-    sampled = falses(n)
-    i′ = 0
-    for i in 1:n
-        @assert 0 ≤ sa[i] ≤ n - 1
-        if sa[i] % r == 0
-            samples[i′+=1] = sa[i]
-            sampled[i] = true
-        end
-    end
-    return samples, sampled
-end
-
-function make_bwt(seq, sa)
-    n = length(seq)
-    @assert length(sa) == n
-    ret = Vector{UInt8}(n)
-    j = 1
-    for i in 1:n
-        # note that `sa` starts from zero
-        p = sa[i]
-        if p == 0
-            ret[1] = seq[end]
-        else
-            ret[j+=1] = seq[p]
-        end
-    end
-    return ret
-end
-
-
-# pSAscan
-# -------
-#
-# https://www.cs.helsinki.fi/group/pads/pSAscan.html
-
+# pSAscan: https://www.cs.helsinki.fi/group/pads/pSAscan.html
 function make_sa_pscan(T, seq, psascan, workdir, mmap)
     seqpath, io = mktemp(workdir)
     sapath = string(seqpath, ".sa5")
@@ -101,4 +59,48 @@ function load_sa!{T}(input::IO, sa::Vector{T})
     end
     @assert i == length(sa)
     return sa
+end
+
+
+# other utils
+
+function index_type(n)
+    n -= 1
+    n ≤ typemax(UInt8)  ? UInt8  :
+    n ≤ typemax(UInt16) ? UInt16 :
+    n ≤ typemax(UInt32) ? UInt32 : UInt64
+end
+
+# suffix array sampling
+function sample_sa{T}(sa::Vector{T}, r)
+    n = length(sa)
+    samples = Vector{T}(cld(n, r))
+    sampled = falses(n)
+    i′ = 0
+    for i in 1:n
+        @assert 0 ≤ sa[i] ≤ n - 1
+        if sa[i] % r == 0
+            samples[i′+=1] = sa[i]
+            sampled[i] = true
+        end
+    end
+    return samples, sampled
+end
+
+# Burrows-Wheeler Transform
+function make_bwt(seq, sa)
+    n = length(seq)
+    @assert length(sa) == n
+    ret = Vector{UInt8}(n)
+    j = 1
+    for i in 1:n
+        # note that `sa` starts from zero
+        p = sa[i]
+        if p == 0
+            ret[1] = seq[end]
+        else
+            ret[j+=1] = seq[p]
+        end
+    end
+    return ret
 end

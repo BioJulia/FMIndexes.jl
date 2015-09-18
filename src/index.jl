@@ -1,5 +1,3 @@
-length(index::FMIndex) = length(index.bwt)
-
 function log2(::Type{Int}, x::Integer)
     return 64 - leading_zeros(convert(UInt64, x-1))
 end
@@ -42,7 +40,7 @@ function sa_range(query, index::FMIndex, init_range::UnitRange{Int})
     return sp:ep
 end
 
-function sa_value(i, index::FMIndex)
+function sa_value(i::Int, index::FMIndex)
     if i == 1
         # point to the sentinel '$'
         return length(index) + 1
@@ -54,3 +52,5 @@ function sa_value(i, index::FMIndex)
     end
     return index.samples[rank1(index.sampled, i - 1)] + d
 end
+
+sa_value(i::Integer, index::FMIndex) = sa_value(Int(i), index)

@@ -2,11 +2,19 @@ isdefined(Base, :__precompile__) && __precompile__()
 
 module FMIndices
 
-export FMIndex, restore, count, locate, locateall
+export
+    FMIndex,
+    restore,
+    count,
+    locate,
+    locateall
 
 import Base:
     count,
-    length
+    length,
+    start,
+    done,
+    next
 
 using SuffixArrays
 using WaveletMatrices
@@ -67,9 +75,16 @@ function FMIndex(seq, σ=256; r=32, program=:SuffixArrays, mmap::Bool=false, opt
     return FMIndex(seq, sa, σ, r)
 end
 
+"""
+    FMIndex(text::ASCIIString; opts...)
+
+Build an FM-Index from an ASCII text.
+"""
 function FMIndex(text::ASCIIString; opts...)
     return FMIndex(convert(Vector{UInt8}, text), 128; opts...)
 end
+
+length(index::FMIndex) = length(index.bwt)
 
 """
 Restore the original text from the index.
@@ -118,7 +133,7 @@ function locateall(query, index::FMIndex)
 end
 
 include("index.jl")
-include("sa.jl")
+include("saca.jl")
 include("lociter.jl")
 
 end # module
