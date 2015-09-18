@@ -1,4 +1,4 @@
-using FMIndices
+using FMIndexes
 using FactCheck
 
 srand(12345)
@@ -241,7 +241,7 @@ facts("full-text search") do
         return locs
     end
 
-    text = open(readall, Pkg.dir("FMIndices", "test", "lorem_ipsum.txt"))
+    text = open(readall, Pkg.dir("FMIndexes", "test", "lorem_ipsum.txt"))
     index = FMIndex(text, r=2)
 
     @fact count("Lorem", index) --> 1

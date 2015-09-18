@@ -1,6 +1,6 @@
-# FMIndices
+# FMIndexes
 
-[![Build Status](https://travis-ci.org/BioJulia/FMIndices.jl.svg?branch=master)](https://travis-ci.org/BioJulia/FMIndices.jl)
+[![Build Status](https://travis-ci.org/BioJulia/FMIndexes.jl.svg?branch=master)](https://travis-ci.org/BioJulia/FMIndexes.jl)
 
 [FM-index](https://en.wikipedia.org/wiki/FM-index) is a static, compact, and fast index for full-text search.
 
@@ -15,7 +15,7 @@ julia> count("abra", fmindex)  # count the number of occurrences of a query
 2
 
 julia> locate("ra", fmindex)
-FMIndices.LocationIterator{7,UInt8}(11:12,FMIndices.FMIndex{7,UInt8}(UInt8[0x61,0x72,0x64,0x72,0x63,0x61,0x61,0x61,0x61,0x62,0x62],4,UInt8[0x00],Bool[false,false,true,false,false,false,false,false,false,false,false],[1,1,1,1,1,1,1,1,1,1  …  12,12,12,12,12,12,12,12,12,12]))
+FMIndexes.LocationIterator{7,UInt8}(11:12,FMIndexes.FMIndex{7,UInt8}(UInt8[0x61,0x72,0x64,0x72,0x63,0x61,0x61,0x61,0x61,0x62,0x62],4,UInt8[0x00],Bool[false,false,true,false,false,false,false,false,false,false,false],[1,1,1,1,1,1,1,1,1,1  …  12,12,12,12,12,12,12,12,12,12]))
 
 julia> for loc in locate("ra", fmindex)  # return the iterator of positions of a query
            println(loc)

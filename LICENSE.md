@@ -1,4 +1,4 @@
-The FMIndex.jl package is licensed under the MIT "Expat" License:
+The FMIndexes.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2015: Kenta Sato.
 >

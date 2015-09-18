@@ -1,6 +1,6 @@
 isdefined(Base, :__precompile__) && __precompile__()
 
-module FMIndices
+module FMIndexes
 
 export
     FMIndex,
