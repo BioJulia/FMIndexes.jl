@@ -42,10 +42,13 @@ The following is a general constructor:
 FMIndex(seq, σ=256; r=32, program=:SuffixArrays, mmap::Bool=false, opts...)
 ```
 
+`seq` is expected be a byte sequence; `seq[i]` should return a value of `UInt8`.
+If the alphabet of a sequence can be encoded less that 8 bits, [IntArrays.jl](https://github.com/bicycle1885/IntArrays.jl) would be helpful to save the space.
+
 `σ` is the size of the alphabet; for example, if the sequence is a DNA sequence, setting `σ` to 4 (four nucleotides) is the best choice in terms of efficiency.
 Setting larger `σ` value than necessary is just a waste of query time and index space.
 
 The positions of the sequence are sampled every `r` elements. There is a trade-off between query time and index space about this value: the smaller `r` is, the faster it is to locate positions but the larger the index is.
 
-`program` is used to construct the suffix array of the sequence. The [SuffixArrays.jl](https://github.com/quinnj/SuffixArrays.jl) package is by default, but if you want to create the index for a very long sequence it is recommended to use the [pSAscan](https://www.cs.helsinki.fi/group/pads/pSAscan.html) program.
+`program` is used to construct the suffix array of the sequence. The [SuffixArrays.jl](https://github.com/quinnj/SuffixArrays.jl) package is used by default, but if you want to create the index for a very long sequence it is recommended to use the [pSAscan](https://www.cs.helsinki.fi/group/pads/pSAscan.html) program.
 Also, the `mmap` flag determines wheather the suffix array is stored in a memory-mapped array or not. This flag would be necessary for a long sequence because the temporary suffix array often consumes larger memory space than the index itself (for instance, the suffix array of a sequence of 2^32 length consumes 16GiB RAM).
