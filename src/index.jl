@@ -40,6 +40,14 @@ function sa_range(query, index::FMIndex, init_range::UnitRange{Int})
     return sp:ep
 end
 
+@inline function sa_range(char::UInt8, index::FMIndex, range::UnitRange{Int})
+    sp, ep = range.start, range.stop
+    c = index.count[char+1]
+    sp = c + rank(char, index.bwt, (sp > index.sentinel ? sp - 1 : sp) - 1) + 1
+    ep = c + rank(char, index.bwt, (ep > index.sentinel ? ep - 1 : ep))
+    return sp:ep
+end
+
 function sa_value(i::Int, index::FMIndex)
     if i == 1
         # point to the sentinel '$'
