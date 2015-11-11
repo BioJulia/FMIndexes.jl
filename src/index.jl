@@ -19,7 +19,7 @@ function lfmap(index::FMIndex, i)
         i -= 1
     end
     char = index.bwt[i]
-    return index.count[char+1] + rank(char, index.bwt, i)
+    @inbounds return index.count[char+1] + rank(char, index.bwt, i)
 end
 
 function sa_range(query, index::FMIndex)
@@ -54,7 +54,7 @@ function sa_value(i::Int, index::FMIndex)
         return length(index) + 1
     end
     d = 0
-    while !index.sampled[i-1]
+    @inbounds while !index.sampled[i-1]
         i = lfmap(index, i)
         d += 1
     end
