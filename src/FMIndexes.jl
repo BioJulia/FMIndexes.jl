@@ -12,6 +12,7 @@ export
 import Base:
     count,
     length,
+    show,
     start,
     done,
     next
@@ -19,6 +20,7 @@ import Base:
 using SuffixArrays
 using WaveletMatrices
 using IndexableBitVectors
+using Humanize
 
 """
 Index for full-text search.
@@ -61,6 +63,7 @@ it requires more time to locate the position.
 function FMIndex(seq, σ=256; r=32, program=:SuffixArrays, mmap::Bool=false, opts...)
     T = index_type(length(seq))
     opts = Dict(opts)
+    @assert !haskey(opts, :σ) "σ should be passed as the second argument"
     if program === :SuffixArrays
         @assert 1 ≤ σ ≤ typemax(UInt8) + 1
         sa = make_sa(T, seq, σ, mmap)
@@ -85,6 +88,18 @@ function FMIndex(text::ASCIIString; opts...)
 end
 
 length(index::FMIndex) = length(index.bwt)
+
+function show{w,T}(io::IO, fmindex::FMIndex{w,T})
+    print(io, "FMIndex{", w, ",", T, "}:\n")
+    totalsize = (
+        sizeof(fmindex.bwt) +
+        sizeof(fmindex.samples) +
+        sizeof(fmindex.sampled) +
+        sizeof(fmindex.count)
+    )
+    print("     length: ", length(fmindex), '\n')
+    print("  data size: ", datasize(totalsize, style=:bin))
+end
 
 """
 Restore the original text from the index.
