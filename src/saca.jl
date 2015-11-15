@@ -1,10 +1,17 @@
 # Suffix Array Construction Algorithms
 
+# a wrapper type for a sequence that returns byte-convertible elements
+immutable ByteSeq{S} <: AbstractVector{UInt8}
+    data::S
+end
+Base.size(seq::ByteSeq) = (length(seq.data),)
+@inline Base.getindex(seq::ByteSeq, i::Integer) = UInt8(seq.data[i])
+
 # SuffixArrays.jl: https://github.com/quinnj/SuffixArrays.jl
 function make_sa(T, seq, σ, mmap)
     n = length(seq)
     tmp_sa = mmap ? Mmap.mmap(Vector{Int}, n) : Vector{Int}(n)
-    SuffixArrays.sais(seq, tmp_sa, 0, n, nextpow2(σ), false)
+    SuffixArrays.sais(ByteSeq(seq), tmp_sa, 0, n, nextpow2(σ), false)
     sa = mmap ? Mmap.mmap(Vector{T}, n) : Vector{T}(n)
     copy!(sa, tmp_sa)
     return sa

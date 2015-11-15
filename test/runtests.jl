@@ -3,6 +3,16 @@ using FactCheck
 
 srand(12345)
 
+# simple DNA sequence type
+@enum Nuc A C G T
+type DNASeq
+    data::Vector{Nuc}
+end
+Base.getindex(seq::DNASeq, i::Integer) = seq.data[i]
+Base.length(seq::DNASeq) = length(seq.data)
+Base.endof(seq::DNASeq)  = length(seq.data)
+
+
 facts("construct") do
     context("one") do
         σ = 2
@@ -23,6 +33,13 @@ facts("construct") do
         seq = rand(0x00:0x01, 2^24)
         index = FMIndex(seq, σ)
         @fact typeof(index) --> FMIndex{1,UInt32}
+    end
+
+    context("dna") do
+        σ = 4
+        seq = DNASeq([A, C, G, T, A, T])
+        index = FMIndex(seq, σ)
+        @fact typeof(index) --> FMIndex{2,UInt8}
     end
 
     context("boundaries") do
@@ -80,6 +97,13 @@ facts("restore") do
         seq = "abracadabra".data
         index = FMIndex(seq, σ)
         @fact restore(index) --> seq
+    end
+
+    context("dna") do
+        σ = 4
+        seq = DNASeq([A, C, G, T, A, T])
+        index = FMIndex(seq, σ)
+        @fact restore(index) --> [0x00, 0x01, 0x02, 0x03, 0x0, 0x03]
     end
 
     context("random") do
