@@ -94,7 +94,7 @@ facts("restore") do
         @fact restore(index) --> seq
 
         σ = 128
-        seq = "abracadabra".data
+        seq = Vector{UInt8}("abracadabra")
         index = FMIndex(seq, σ)
         @fact restore(index) --> seq
     end
@@ -110,8 +110,8 @@ facts("restore") do
         σ = 128
         for n in [2, 15, 100], _ in 1:100
             seq = randstring(n)
-            index = FMIndex(seq.data, σ)
-            @fact restore(index) --> seq.data
+            index = FMIndex(Vector{UInt8}(seq), σ)
+            @fact restore(index) --> Vector{UInt8}(seq)
         end
     end
 end
@@ -126,7 +126,7 @@ facts("count") do
 
     context("\"abracadabra\"") do
         σ = 128
-        seq = "abracadabra".data
+        seq = Vector{UInt8}("abracadabra")
         index = FMIndex(seq, σ)
 
         @fact count("a", index) --> 5
@@ -196,7 +196,7 @@ facts("locate/locateall") do
 
     context("\"abracadabra\"") do
         σ = 128
-        seq = "abracadabra".data
+        seq = Vector{UInt8}("abracadabra")
         index = FMIndex(seq, σ)
 
         @fact locate("a", index) |> collect |> sort --> [1, 4, 6, 8, 11]
