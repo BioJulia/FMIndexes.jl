@@ -1,5 +1,6 @@
 using FMIndexes
 using FactCheck
+using Combinatorics
 
 srand(12345)
 
@@ -259,13 +260,13 @@ facts("full-text search") do
     function linear_search(query)
         locs = Int[]
         loc = 0
-        while (loc = searchindex(text, query, loc + 1)) > 0
+        while (loc = searchindex(text, Vector{UInt8}(query), loc + 1)) > 0
             push!(locs, loc)
         end
         return locs
     end
 
-    text = open(readall, Pkg.dir("FMIndexes", "test", "lorem_ipsum.txt"))
+    text = open(read, Pkg.dir("FMIndexes", "test", "lorem_ipsum.txt"))
     index = FMIndex(text, r=2)
 
     @fact count("Lorem", index) --> 1
@@ -282,5 +283,5 @@ facts("full-text search") do
         @fact locateall(query, index) |> sort --> locs
     end
 
-    @fact bytestring(restore(index)) --> text
+    @fact String(restore(index)) --> String(text)
 end
