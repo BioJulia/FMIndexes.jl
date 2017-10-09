@@ -285,3 +285,4 @@ facts("full-text search") do
 
     @fact String(restore(index)) --> String(text)
 end
+
