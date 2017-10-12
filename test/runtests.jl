@@ -1,5 +1,6 @@
 using FMIndexes
 using FactCheck
+using Combinatorics
 
 srand(12345)
 
@@ -94,7 +95,7 @@ facts("restore") do
         @fact restore(index) --> seq
 
         σ = 128
-        seq = "abracadabra".data
+        seq = Vector{UInt8}("abracadabra")
         index = FMIndex(seq, σ)
         @fact restore(index) --> seq
     end
@@ -110,8 +111,8 @@ facts("restore") do
         σ = 128
         for n in [2, 15, 100], _ in 1:100
             seq = randstring(n)
-            index = FMIndex(seq.data, σ)
-            @fact restore(index) --> seq.data
+            index = FMIndex(Vector{UInt8}(seq), σ)
+            @fact restore(index) --> Vector{UInt8}(seq)
         end
     end
 end
@@ -126,7 +127,7 @@ facts("count") do
 
     context("\"abracadabra\"") do
         σ = 128
-        seq = "abracadabra".data
+        seq = Vector{UInt8}("abracadabra")
         index = FMIndex(seq, σ)
 
         @fact count("a", index) --> 5
@@ -196,7 +197,7 @@ facts("locate/locateall") do
 
     context("\"abracadabra\"") do
         σ = 128
-        seq = "abracadabra".data
+        seq = Vector{UInt8}("abracadabra")
         index = FMIndex(seq, σ)
 
         @fact locate("a", index) |> collect |> sort --> [1, 4, 6, 8, 11]
@@ -259,13 +260,13 @@ facts("full-text search") do
     function linear_search(query)
         locs = Int[]
         loc = 0
-        while (loc = searchindex(text, query, loc + 1)) > 0
+        while (loc = searchindex(text, Vector{UInt8}(query), loc + 1)) > 0
             push!(locs, loc)
         end
         return locs
     end
 
-    text = open(readall, Pkg.dir("FMIndexes", "test", "lorem_ipsum.txt"))
+    text = open(read, Pkg.dir("FMIndexes", "test", "lorem_ipsum.txt"))
     index = FMIndex(text, r=2)
 
     @fact count("Lorem", index) --> 1
@@ -282,5 +283,5 @@ facts("full-text search") do
         @fact locateall(query, index) |> sort --> locs
     end
 
-    @fact bytestring(restore(index)) --> text
+    @fact String(restore(index)) --> String(text)
 end
