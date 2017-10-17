@@ -9,13 +9,12 @@ The index type, `FMIndex{w,T}`, is able to index an arbitrary byte sequence.
 
 
 ```julia
+julia> using FMIndexes
+
 julia> fmindex = FMIndex("abracadabra");
 
 julia> count("abra", fmindex)  # count the number of occurrences of a query
 2
-
-julia> locate("ra", fmindex)
-FMIndexes.LocationIterator{7,UInt8}(11:12,FMIndexes.FMIndex{7,UInt8}(UInt8[0x61,0x72,0x64,0x72,0x63,0x61,0x61,0x61,0x61,0x62,0x62],4,UInt8[0x00],Bool[false,false,true,false,false,false,false,false,false,false,false],[1,1,1,1,1,1,1,1,1,1  …  12,12,12,12,12,12,12,12,12,12]))
 
 julia> for loc in locate("ra", fmindex)  # return the iterator of positions of a query
            println(loc)
@@ -28,7 +27,7 @@ julia> locateall("ra", fmindex)  # return the all positions of a query
  10
   3
 
-julia> bytestring(restore(fmindex))  # restore a byte sequence from the index
+julia> String(restore(fmindex))  # restore a byte sequence from the index
 "abracadabra"
 
 ```
