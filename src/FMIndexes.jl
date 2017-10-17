@@ -82,7 +82,7 @@ end
 Base.length(index::FMIndex) = length(index.bwt)
 
 function Base.show{w,T}(io::IO, fmindex::FMIndex{w,T})
-    print(io, "FMIndex{", w, ",", T, "}:\n")
+    println(io, summary(fmindex), ':')
     totalsize = (
         sizeof(fmindex.bwt) +
         sizeof(fmindex.samples) +
