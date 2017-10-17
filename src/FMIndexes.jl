@@ -9,14 +9,6 @@ export
     locate,
     locateall
 
-import Base:
-    count,
-    length,
-    show,
-    start,
-    done,
-    next
-
 using SuffixArrays
 using WaveletMatrices
 using IndexableBitVectors
@@ -87,10 +79,10 @@ function FMIndex(text::String; opts...)
     return FMIndex(convert(Vector{UInt8}, text), 128; opts...)
 end
 
-length(index::FMIndex) = length(index.bwt)
+Base.length(index::FMIndex) = length(index.bwt)
 
-function show{w,T}(io::IO, fmindex::FMIndex{w,T})
-    print(io, "FMIndex{", w, ",", T, "}:\n")
+function Base.show{w,T}(io::IO, fmindex::FMIndex{w,T})
+    println(io, summary(fmindex), ':')
     totalsize = (
         sizeof(fmindex.bwt) +
         sizeof(fmindex.samples) +
@@ -119,7 +111,7 @@ end
 """
 Count the number of occurrences of the given query.
 """
-function count(query, index::FMIndex)
+function Base.count(query, index::FMIndex)
     return length(sa_range(query, index))
 end
 
