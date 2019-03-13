@@ -1,4 +1,4 @@
-immutable LocationIterator{w,T}
+struct LocationIterator{w,T}
     range::UnitRange{Int}
     index::FMIndex{w,T}
 end
