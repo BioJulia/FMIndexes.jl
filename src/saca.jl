@@ -52,7 +52,7 @@ function load_sa(T, file, mmap)
     return sa
 end
 
-function load_sa!{T}(input::IO, sa::Vector{T})
+function load_sa!(input::IO, sa::Vector{T}) where T
     # load a suffix array from the `input` into `sa`
     buf = Vector{UInt8}(undef, 5)
     i = 0
