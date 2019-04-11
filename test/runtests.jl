@@ -1,4 +1,4 @@
-
+using FMIndexes
 using Combinatorics
 using Test
 using Random
