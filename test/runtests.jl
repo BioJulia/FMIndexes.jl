@@ -1,6 +1,6 @@
 using FMIndexes
 using Combinatorics
-using Base.Test
+using Test
 
 srand(12345)
 
