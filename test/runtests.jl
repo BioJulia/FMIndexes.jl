@@ -1,4 +1,4 @@
-using FMIndexes
+
 using Combinatorics
 using Test
 using Random
@@ -7,7 +7,7 @@ Random.seed!(12345)
 
 # simple DNA sequence type
 @enum Nuc A C G T
-type DNASeq
+struct DNASeq
     data::Vector{Nuc}
 end
 Base.getindex(seq::DNASeq, i::Integer) = seq.data[i]
