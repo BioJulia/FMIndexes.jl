@@ -13,6 +13,7 @@ using SuffixArrays
 using WaveletMatrices
 using IndexableBitVectors
 using Humanize
+using Mmap
 
 """
 Index for full-text search.
