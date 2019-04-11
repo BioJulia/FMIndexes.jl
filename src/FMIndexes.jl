@@ -35,7 +35,7 @@ function FMIndex(seq, sa, σ, r)
     wm = WaveletMatrix(make_bwt(seq, sa), log2(Int, σ))
     # sample suffix array
     samples, sampled = sample_sa(sa, r)
-    sentinel = findfirst(sa, 0) + 1
+    sentinel = something(findfirst(isequal(0), sa), 0) + 1
     # count characters
     count = count_bytes(seq, σ)
     count[1] = 1  # sentinel '$' is smaller than any character
