@@ -12,7 +12,7 @@ mutable struct DNASeq
 end
 Base.getindex(seq::DNASeq, i::Integer) = seq.data[i]
 Base.length(seq::DNASeq) = length(seq.data)
-Base.endof(seq::DNASeq)  = length(seq.data)
+Base.lastindex(seq::DNASeq)  = length(seq.data)
 
 
 @testset "construct" begin
@@ -177,7 +177,7 @@ end
 
 function linear_search(query, seq)
     locs = Int[]
-    for i in 1:endof(seq)-length(query)+1
+    for i in 1:lastindex(seq)-length(query)+1
         j = 1
         while j ≤ length(query) && query[j] == seq[i+j-1]
             j += 1
