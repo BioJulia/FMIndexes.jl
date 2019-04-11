@@ -262,13 +262,14 @@ end
     function linear_search(query)
         locs = Int[]
         loc = 0
-        while (loc = searchindex(text, Vector{UInt8}(query), loc + 1)) > 0
+        while (loc = first(something(findnext(query, textstr, loc + 1), 0:-1))) > 0
             push!(locs, loc)
         end
         return locs
     end
 
     text = open(read, joinpath(dirname(@__FILE__), "lorem_ipsum.txt"))
+    textstr = String(text)
     index = FMIndex(text, r=2)
 
     @test count("Lorem", index) == 1
