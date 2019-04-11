@@ -13,7 +13,7 @@ end
 Base.getindex(seq::DNASeq, i::Integer) = seq.data[i]
 Base.length(seq::DNASeq) = length(seq.data)
 Base.lastindex(seq::DNASeq)  = length(seq.data)
-
+Base.convert(::Type{UInt8}, x::Nuc) = UInt8(x)
 
 @testset "construct" begin
     @testset "one" begin
