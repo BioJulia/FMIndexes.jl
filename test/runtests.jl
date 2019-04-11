@@ -1,8 +1,9 @@
 using FMIndexes
 using Combinatorics
 using Test
+using Random
 
-srand(12345)
+Random.seed!(12345)
 
 # simple DNA sequence type
 @enum Nuc A C G T
