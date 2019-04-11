@@ -74,7 +74,7 @@ Base.convert(::Type{UInt8}, x::Nuc) = UInt8(x)
             index = FMIndex(seq, σ, program=:psascan, psascan=ENV["PSASCAN"], mmap=true)
             @test typeof(index) == FMIndex{2,UInt32}
         else
-            info("Skipped a test")
+            @info "Skipped a test"
             #@pending typeof(index) --> FMIndex{2,UInt32}
         end
     end
