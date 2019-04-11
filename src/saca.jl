@@ -11,7 +11,7 @@ Base.size(seq::ByteSeq) = (length(seq.data),)
 function make_sa(T, seq, σ, mmap)
     n = length(seq)
     tmp_sa = mmap ? Mmap.mmap(Vector{Int}, n) : Vector{Int}(undef, n)
-    SuffixArrays.sais(ByteSeq(seq), tmp_sa, 0, n, nextpow2(σ), false)
+    SuffixArrays.sais(ByteSeq(seq), tmp_sa, 0, n, nextpow(2, σ), false)
     sa = mmap ? Mmap.mmap(Vector{T}, n) : Vector{T}(undef, n)
     copy!(sa, tmp_sa)
     return sa
