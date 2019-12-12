@@ -259,7 +259,7 @@ end
 end
 
 @testset "full-text search" begin
-    function linear_search(query)
+    function linear_search(query, textstr)
         locs = Int[]
         loc = 0
         while (loc = first(something(findnext(query, textstr, loc + 1), 0:-1))) > 0
@@ -268,10 +268,9 @@ end
         return locs
     end
 
-    text = open(read, joinpath(dirname(@__FILE__), "lorem_ipsum.txt"))
-    textstr = String(text)
+    text = read(joinpath(dirname(@__FILE__), "lorem_ipsum.txt"))
+    textstr = String(copy(text))
     index = FMIndex(text, r=2)
-
     @test count("Lorem", index) == 1
     @test locateall("Lorem", index) == [1]
     @test count("hoge", index) == 0
@@ -281,7 +280,7 @@ end
                   "non", "Sed",
                   "odio", "Cras",
                   "sollicitudin"]
-        locs = linear_search(query)
+        locs = linear_search(query, textstr)
         @test count(query, index) == length(locs)
         @test locateall(query, index) |> sort == locs
     end

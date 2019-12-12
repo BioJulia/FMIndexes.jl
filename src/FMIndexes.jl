@@ -91,7 +91,7 @@ function Base.show(io::IO, fmindex::FMIndex{w,T}) where {w,T}
         sizeof(fmindex.count)
     )
     print("     length: ", length(fmindex), '\n')
-    print("  data size: ", datasize(totalsize, style=:bin))
+    print("  data size: ", Humanize.datasize(totalsize, style=:bin))
 end
 
 """

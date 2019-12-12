@@ -60,7 +60,7 @@ function load_sa!(input::IO, sa::Vector{T}) where T
         read!(input, buf)
         value = T(0)
         @inbounds for j in 1:5
-            value |= convert(T, buf[j]) << 8 * (j - 1)
+            value |= convert(T, buf[j]) << (8 * (j - 1))
         end
         sa[i+=1] = value
     end
