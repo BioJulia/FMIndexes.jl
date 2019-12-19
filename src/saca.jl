@@ -1,7 +1,7 @@
 # Suffix Array Construction Algorithms
 
 # a wrapper type for a sequence that returns byte-convertible elements
-immutable ByteSeq{S} <: AbstractVector{UInt8}
+struct ByteSeq{S} <: AbstractVector{UInt8}
     data::S
 end
 Base.size(seq::ByteSeq) = (length(seq.data),)
@@ -10,10 +10,10 @@ Base.size(seq::ByteSeq) = (length(seq.data),)
 # SuffixArrays.jl: https://github.com/quinnj/SuffixArrays.jl
 function make_sa(T, seq, σ, mmap)
     n = length(seq)
-    tmp_sa = mmap ? Mmap.mmap(Vector{Int}, n) : Vector{Int}(n)
-    SuffixArrays.sais(ByteSeq(seq), tmp_sa, 0, n, nextpow2(σ), false)
-    sa = mmap ? Mmap.mmap(Vector{T}, n) : Vector{T}(n)
-    copy!(sa, tmp_sa)
+    tmp_sa = mmap ? Mmap.mmap(Vector{Int}, n) : Vector{Int}(undef, n)
+    SuffixArrays.sais(ByteSeq(seq), tmp_sa, 0, n, nextpow(2, σ), false)
+    sa = mmap ? Mmap.mmap(Vector{T}, n) : Vector{T}(undef, n)
+    copyto!(sa, tmp_sa)
     return sa
 end
 
@@ -52,15 +52,15 @@ function load_sa(T, file, mmap)
     return sa
 end
 
-function load_sa!{T}(input::IO, sa::Vector{T})
+function load_sa!(input::IO, sa::Vector{T}) where T
     # load a suffix array from the `input` into `sa`
-    buf = Vector{UInt8}(5)
+    buf = Vector{UInt8}(undef, 5)
     i = 0
     while !eof(input)
         read!(input, buf)
         value = T(0)
         @inbounds for j in 1:5
-            value |= convert(T, buf[j]) << 8 * (j - 1)
+            value |= convert(T, buf[j]) << (8 * (j - 1))
         end
         sa[i+=1] = value
     end
@@ -79,9 +79,9 @@ function index_type(n)
 end
 
 # suffix array sampling
-function sample_sa{T}(sa::Vector{T}, r)
+function sample_sa(sa::Vector{T}, r) where T
     n = length(sa)
-    samples = Vector{T}(cld(n, r))
+    samples = Vector{T}(undef, cld(n, r))
     sampled = falses(n)
     i′ = 0
     for i in 1:n
@@ -98,7 +98,7 @@ end
 function make_bwt(seq, sa)
     n = length(seq)
     @assert length(sa) == n
-    ret = Vector{UInt8}(n)
+    ret = Vector{UInt8}(undef, n)
     j = 1
     for i in 1:n
         # note that `sa` starts from zero

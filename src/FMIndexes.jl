@@ -13,6 +13,7 @@ using SuffixArrays
 using WaveletMatrices
 using IndexableBitVectors
 using Humanize
+using Mmap
 
 """
 Index for full-text search.
@@ -22,7 +23,7 @@ Type parameters:
 * `w`: the number of bits required to encode the alphabet
 * `T`: the type to represent positions of a sequence
 """
-immutable FMIndex{w,T}
+struct FMIndex{w,T}
     bwt::WaveletMatrix{w,UInt8,SucVector}
     sentinel::Int
     samples::Vector{T}
@@ -34,7 +35,7 @@ function FMIndex(seq, sa, σ, r)
     wm = WaveletMatrix(make_bwt(seq, sa), log2(Int, σ))
     # sample suffix array
     samples, sampled = sample_sa(sa, r)
-    sentinel = findfirst(sa, 0) + 1
+    sentinel = something(findfirst(isequal(0), sa), 0) + 1
     # count characters
     count = count_bytes(seq, σ)
     count[1] = 1  # sentinel '$' is smaller than any character
@@ -81,7 +82,7 @@ end
 
 Base.length(index::FMIndex) = length(index.bwt)
 
-function Base.show{w,T}(io::IO, fmindex::FMIndex{w,T})
+function Base.show(io::IO, fmindex::FMIndex{w,T}) where {w,T}
     println(io, summary(fmindex), ':')
     totalsize = (
         sizeof(fmindex.bwt) +
@@ -90,7 +91,7 @@ function Base.show{w,T}(io::IO, fmindex::FMIndex{w,T})
         sizeof(fmindex.count)
     )
     print("     length: ", length(fmindex), '\n')
-    print("  data size: ", datasize(totalsize, style=:bin))
+    print("  data size: ", Humanize.datasize(totalsize, style=:bin))
 end
 
 """
@@ -98,7 +99,7 @@ Restore the original text from the index.
 """
 function restore(index::FMIndex)
     n = length(index)
-    text = Vector{UInt8}(n)
+    text = Vector{UInt8}(undef, n)
     p = index.sentinel
     while n > 0
         p = lfmap(index, p)
@@ -132,7 +133,7 @@ Locate the positions of all occurrences of the given query.
 """
 function locateall(query, index::FMIndex)
     iter = locate(query, index)
-    locs = Vector{Int}(length(iter))
+    locs = Vector{Int}(undef, length(iter))
     for (i, loc) in enumerate(iter)
         locs[i] = loc
     end

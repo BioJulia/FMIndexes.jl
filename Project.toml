@@ -1,0 +1,23 @@
+name = "FMIndexes"
+uuid = "df4c4d3e-99e2-490c-be50-cc7f88de63b5"
+version = "1.0.0"
+
+[deps]
+Humanize = "7ec9b9c5-1998-51e1-b7fc-fc3590c18259"
+IndexableBitVectors = "1cb3b9ac-1ffd-5777-9e6b-a3d42300664d"
+Mmap = "a63ad114-7e13-5084-954f-fe012c677804"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SuffixArrays = "24f65c1e-0a10-5d3d-8a1f-a83399f3fced"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+WaveletMatrices = "c0580c95-5bac-53b2-8f35-dbbbc8487a1f"
+
+[compat]
+julia = ">= 1.0"
+
+[extras]
+Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Combinatorics", "Random", "Test"]

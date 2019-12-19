@@ -1,18 +1,19 @@
 using FMIndexes
 using Combinatorics
-using Base.Test
+using Test
+using Random
 
-srand(12345)
+Random.seed!(12345)
 
 # simple DNA sequence type
 @enum Nuc A C G T
-type DNASeq
+mutable struct DNASeq
     data::Vector{Nuc}
 end
 Base.getindex(seq::DNASeq, i::Integer) = seq.data[i]
 Base.length(seq::DNASeq) = length(seq.data)
-Base.endof(seq::DNASeq)  = length(seq.data)
-
+Base.lastindex(seq::DNASeq)  = length(seq.data)
+Base.convert(::Type{UInt8}, x::Nuc) = UInt8(x)
 
 @testset "construct" begin
     @testset "one" begin
@@ -73,7 +74,7 @@ Base.endof(seq::DNASeq)  = length(seq.data)
             index = FMIndex(seq, σ, program=:psascan, psascan=ENV["PSASCAN"], mmap=true)
             @test typeof(index) == FMIndex{2,UInt32}
         else
-            info("Skipped a test")
+            @info "Skipped a test"
             #@pending typeof(index) --> FMIndex{2,UInt32}
         end
     end
@@ -176,7 +177,7 @@ end
 
 function linear_search(query, seq)
     locs = Int[]
-    for i in 1:endof(seq)-length(query)+1
+    for i in 1:lastindex(seq)-length(query)+1
         j = 1
         while j ≤ length(query) && query[j] == seq[i+j-1]
             j += 1
@@ -258,18 +259,18 @@ end
 end
 
 @testset "full-text search" begin
-    function linear_search(query)
+    function linear_search(query, textstr)
         locs = Int[]
         loc = 0
-        while (loc = searchindex(text, Vector{UInt8}(query), loc + 1)) > 0
+        while (loc = first(something(findnext(query, textstr, loc + 1), 0:-1))) > 0
             push!(locs, loc)
         end
         return locs
     end
 
-    text = open(read, joinpath(dirname(@__FILE__), "lorem_ipsum.txt"))
+    text = read(joinpath(dirname(@__FILE__), "lorem_ipsum.txt"))
+    textstr = String(copy(text))
     index = FMIndex(text, r=2)
-
     @test count("Lorem", index) == 1
     @test locateall("Lorem", index) == [1]
     @test count("hoge", index) == 0
@@ -279,7 +280,7 @@ end
                   "non", "Sed",
                   "odio", "Cras",
                   "sollicitudin"]
-        locs = linear_search(query)
+        locs = linear_search(query, textstr)
         @test count(query, index) == length(locs)
         @test locateall(query, index) |> sort == locs
     end
