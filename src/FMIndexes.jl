@@ -77,7 +77,7 @@ end
 Build an FM-Index from an ASCII text.
 """
 function FMIndex(text::String; opts...)
-    return FMIndex(convert(Vector{UInt8}, text), 128; opts...)
+    return FMIndex(Vector{UInt8}(text), 128; opts...)
 end
 
 Base.length(index::FMIndex) = length(index.bwt)
