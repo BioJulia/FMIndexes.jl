@@ -72,12 +72,12 @@ function FMIndex(seq, σ=256; r=32, program=:SuffixArrays, mmap::Bool=false, opt
 end
 
 """
-    FMIndex(text::String; opts...)
+    FMIndex(text; opts...)
 
 Build an FM-Index from an ASCII text.
 """
-function FMIndex(text::String; opts...)
-    return FMIndex(convert(Vector{UInt8}, text), 128; opts...)
+function FMIndex(text::Union{String, SubString{String}}; opts...)
+    return FMIndex(codeunits(text), 128; opts...)
 end
 
 Base.length(index::FMIndex) = length(index.bwt)

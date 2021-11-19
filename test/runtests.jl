@@ -129,7 +129,7 @@ end
 
     @testset "\"abracadabra\"" begin
         σ = 128
-        seq = Vector{UInt8}("abracadabra")
+        seq = "abracadabra"
         index = FMIndex(seq, σ)
 
         @test count("a", index) == 5
@@ -270,7 +270,7 @@ end
 
     text = read(joinpath(dirname(@__FILE__), "lorem_ipsum.txt"))
     textstr = String(copy(text))
-    index = FMIndex(text, r=2)
+    index = FMIndex(textstr, r=2)
     @test count("Lorem", index) == 1
     @test locateall("Lorem", index) == [1]
     @test count("hoge", index) == 0
